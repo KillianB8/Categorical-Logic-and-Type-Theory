@@ -1,0 +1,643 @@
+\documentclass{report}
+\usepackage{bbm}
+\usepackage{setspace}
+\usepackage{tikz}
+\usetikzlibrary{chains,fit,shapes,automata,arrows.meta,positioning}
+\usepackage{tikz-cd}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumitem}
+
+\input{src/preamble.tex}
+
+\DeclareMathSymbol{\shortminus}{\mathbin}{AMSa}{"39}
+\newcommand{\bE}[0]{\mathbb E}
+\newcommand{\bB}[0]{\mathbb B}
+\newcommand{\bC}[0]{\mathbb C}
+\newcommand{\bD}[0]{\mathbb D}
+\newcommand{\bN}[0]{\mathbb N}
+\newcommand{\fib}[3]{\begin{array}{l}#1 \\[-0.1cm] \downarrow #2 \\ #3\end{array}}
+\newcommand{\fibcent}[3]{\begin{array}{c}#1 \\[-0.1cm] \;\;\downarrow #2 \\ #3\end{array}}
+\newcommand{\fibcentt}[2]{\begin{array}{c}#1 \\[-0.1cm] \downarrow \\ #2\end{array}}
+\newcommand{\fibPEB}[0]{\fib{\bE}{p}{\bB}}
+\newcommand{\Cart}[0]{\mathrm{Cart}}
+\newcommand{\idd}[0]{\mathrm{id}}
+\renewcommand{\dom}[0]{\mathrm{dom}}
+\newcommand{\cod}[0]{\mathrm{cod}}
+\newcommand{\Cat}[0]{\mathbf{Cat}}
+\newcommand{\Sets}[0]{\mathbf{Sets}}
+\newcommand{\PER}[0]{\mathbf{PER}}
+\newcommand{\omgSets}[0]{\omega\!\!\shortminus\!\!\Sets}
+\newcommand{\Fam}[0]{\mathrm{Fam}}
+\newcommand{\Eq}[0]{\mathrm{Eq}}
+\newcommand{\reflective}[0]{\begin{array}{c} \leftarrow \\[-0.25cm] \hookrightarrow\\[-0.1cm]\end{array}}
+\newcommand{\rs}[0]{\mathrm{s}}
+\newcommand{\dbsl}[0]{/\!\!/}
+\newcommand{\Sub}[0]{\mathrm{Sub}}
+\newcommand{\Rel}[0]{\mathrm{Rel}}
+\newcommand{\Per}[0]{\mathrm{Per}}
+\newcommand{\ERel}[0]{\mathrm{ERel}}
+
+\newsavebox{\pullbacksq}
+\sbox\pullbacksq{%
+\begin{tikzpicture}%
+\draw (0,0) -- (3ex,0ex);%
+\draw (3ex,0ex) -- (3ex,3ex);%
+\end{tikzpicture}}
+
+\newcommand{\ul}{\underline}
+\renewcommand{\geq}{\geqslant}
+\renewcommand{\leq}{\leqslant}
+
+\title{Categorical Logic and Type Theory - Exercises}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\pagestyle{empty}
+\makeatletter
+\begin{center}
+
+    \vspace*{\fill}
+
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    {\huge \bfseries \@title}\\[0.1cm]
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+
+    \begin{center} \large
+        Killian \textsc{Barbé}\\
+        Titouan \textsc{Leclercq}
+    \end{center}
+    \vspace*{\fill}
+\end{center}
+\makeatother
+\end{titlepage}
+
+\newpage
+\hypersetup{pageanchor=true}
+\pagestyle{main}
+\setcounter{page}{1}
+
+\section{Introduction to fibred category theory}
+
+\subsection{Fibrations}
+
+\begin{exo}[]
+    \begin{enumerate}[label=(\roman*)]
+        \item Prove the following proposition:
+
+        Cartesian liftings are unique up-to-isomorphism (in a slice): if $f$ and $f'$ with $\cod f =
+        \cod f'$ are both Cartesian over the same map, then there is a unique vertical isomorphism
+        $\varphi : X \overset{\cong}{\to} X'$ with $f'\circ\varphi = f$.
+        \item Suppose $f$ is Cartesian and $g$ and $h$ are above the same map. Show that $f\circ g = f
+        \circ h$ implies $g = h$.
+    \end{enumerate}
+\end{exo}
+
+\begin{answer}
+    \begin{enumerate}[label=(\roman*)]
+        \item Let $f : X \to Y$ and $f' : X' \to Y$ in $\bE$ be both Cartesian over a map $u : pX \to
+        pY$. Then as $f$ is Cartesian, there is a unique $\psi : X' \to X$ such that $f' =\psi \circ 
+        f$ and as $f'$ is cartesian, there is a unique $\varphi : X \to X'$ such that $f = \varphi
+        \circ f'$. We claim that $\psi = \varphi ^{-1}$. Indeed, the composite $\varphi\circ \psi$
+        is such that $f'\circ (\varphi\circ\psi) = f' = f'\circ \idd$, so by uniqueness of the arrow
+        $h$ such that $f' = f'\circ h$, we deduce that $\varphi\circ\psi = \idd$. Similarly, for
+        $\psi\circ\varphi$, we have that $f\circ(\psi\circ\varphi) = f$, thus $\psi\circ\varphi =
+        \idd$. This means that $\varphi : X \overset{\cong}{\to} X'$ is such that $f'\circ \varphi = f$
+        and is unique by uniqueness of the definition of $\varphi$. The fact that $\varphi$ is vertical
+        is because we used Cartesianness of $f$ (resp $f'$) on the functions $u,u,\idd$, so
+        $p(\varphi) = \idd$.
+        \begin{center}
+            \begin{tikzcd}
+                \bE\ar[ddd,"p"] & & X \ar[dd,bend left,dashed,"\varphi"] \ar[rrd,"f"] & & \\
+                & & & & Y\\
+                & & X' \ar[uu,bend left, dashed, "\psi"] \ar[rru, "f'"] & \\
+                \bB & & I \ar[rr,"u"] & & J
+            \end{tikzcd}
+        \end{center}
+        \item Let $f : X \to Y$ be Cartesian and $g,h : Z \to X$ above the same map. Suppose that
+        $f\circ g = f\circ h$.
+        Then, if we write $t = f\circ g$ (which is also $f\circ h$), we have that $g$ and $h$ both
+        complete the triangle below:
+        \begin{center}
+            \begin{tikzcd}
+                \bE\ar[ddd,"p"] & & & X \ar[r,"f"] & Y\\
+                & & Z\ar[ur,"g",shift left = 1ex]\ar[ur,"h" below,shift right = 1ex] 
+                \ar[urr,bend right,"t" below]\\
+                & & & J \ar[r,"u"]& I \\
+                \bB & & L\ar[ur,"w"]\ar[urr,"v" below, bend right] & & 
+            \end{tikzcd}
+        \end{center}
+        But $f$ being cartesian, there can be only one such arrow, so $g = h$.
+    \end{enumerate}
+\end{answer}
+
+\begin{exo}
+    Let $p : \bE\to\bB$ be a functor; assume $f : X \to Y$ is in $\bE$ and put $u = pf$. Show that $f$
+    is Cartesian if and only if for each $Z \in \bE$ and $v : pZ\to pX$ in $\bB$, the function
+    \begin{center}
+        \begin{tikzcd}
+            \bE_v\big(Z,X\big) \ar[rr,"f\;\circ\;(-)"] & & \bE_{u\circ v} \big(Z,Y\big)
+        \end{tikzcd}
+    \end{center}
+    is an isomorphism.
+\end{exo}
+
+\begin{answer}
+    Suppose that for all $Z\in \bE$ and $v : pZ\to pX$ in $\bB$, $f\circ(-)$ is an isomorphism between
+    $\bE_v(Z,X)$ and $\bE_{u\circ v}(Z,Y)$, let's show that $f$ is Cartesian. Let $g : Z \to X$ be an arrow in
+    $\bE$, and $w : pZ \to pX$ be an arrow in $\bB$ such that $pg = pf\circ w$. The fact that $f$ is Cartesian
+    means that there is one and only one arrow $h : Z \to X$ above $w$ such that $g = f\circ h$, which is
+    exactly the fact that $f\circ(-)$ is a bijection from $\bE_{w}(Z,X)$ to $\bE_{u\circ w}(Z,Y)$.
+
+    Conversely, if $f$ is Cartesian, let $Z \in \bE$ and $v : pZ \to pX$ in $\bB$. Let $g \in \bE_{u\circ v}
+    (Z,Y)$, the only $h\in \bE_v(Z,X)$ such that $f\circ h = g$ is exactly the one given by the universal
+    property of $f$ being Cartesian.
+\end{answer}
+
+\begin{exo}
+    Consider the total category of a fibration. Show that
+    \begin{enumerate}[label=(\roman*)]
+        \item every morphism factors as a vertical map followed (diagrammatically) by a Cartesian one;
+        \item\label{1.1.1.3.ii} a Cartesian map above an isomorphism is an isomorphism. Especially a
+        vertical Cartesian map is an isomorphism.
+    \end{enumerate}
+\end{exo}
+
+\begin{answer}
+    \begin{enumerate}[label=(\roman*)]
+        \item Let $X,Y\in\bE$ and $f : X \to Y$. As $pf : pX\to pY$ and $p$ is a fibration, we can lift
+        $pf$ in a function $h : Z \to Y$ which is Cartesian. As $h$ is Cartesian and $pf = pf\circ\idd$,
+        there exists one and only one function $g : Z \to X$ above $\idd$ such that $f = h \circ g$. Thus,
+        $f$ factors as a vertical map followed by a Cartesian one.
+        \item Let $f : X \to Y$ be above an isomorphism $u : I \to J$ and be Cartesian. As $u$ is an
+        isomorphism, let $v = u^{-1} : J \to I$. We know that $\idd = u\circ v$ so, as $f$ is Cartesian, there
+        exists one and only one $g : Y \to X$ above $u$ such that $\idd = f \circ g$. We want to show that
+        $g\circ f = \idd$, but as $f\circ (g\circ f) = f = f \circ \idd$, and both $\idd$ and $g\circ f$ are
+        vertical, this means by uniqueness that $g\circ f = \idd$, so $g =f^{-1}$.
+        \begin{center}
+            \begin{tikzcd}
+                \bE\ar[ddd,"p"] & & X\ar[rr,bend left, "f"]& & Y\ar[ll,dashed,bend left,"g"] \\
+                & & & & \\
+                & & & & \\
+                \bB & & I \ar[rr, bend left, "u"]& & \ar[ll,bend left, "v"]J
+            \end{tikzcd}
+        \end{center}
+    \end{enumerate}
+\end{answer}
+
+\begin{exo}
+    Let $\fibPEB$ be a fibration. Prove that
+    \begin{enumerate}[label=(\roman*)]
+        \item all isomorphisms in $\bE$ are Cartesian;
+        \item\label{1.1.1.4.ii} if $\overset{f}{\rightarrow}\overset{g}{\rightarrow}$ is a composable
+        pair of Cartesian morphisms in $\bE$, then also their composite $\overset{g\circ f}{\rightarrow}$ is Cartesian.
+    \end{enumerate}
+    Hence it makes sense to talk about the subcategory $\Cart(\bE)\hookrightarrow\bE$ having
+    all objects from $\bE$ but only the Cartesian arrows. We write $|p|$ for the composite
+    $\Cart(\bE)\hookrightarrow\bE \rightarrow \bB$.
+    \setlist[enumerate]{resume}
+    \begin{enumerate}[label=(\roman*)]
+        \item\label{1.1.1.4.iii} Let $\overset{f}{\to}\overset{g}{\to}$ be a composable pair in $\bE$
+        again. Show now that if $g$ and $g\circ f$ are Cartesian, then $f$ is Cartesian as well.
+        \item Verify that a consequence of \ref{1.1.1.4.iii} is that the functor $|p| : \Cart(\bE) \to
+        \bB$ is a fibration. From \ref{1.1.1.3.ii} in the previous exercise it follows that all
+        fibres of $|p|$ are groupoids (\textit{i.e.} that all maps in the fibres are isomorphisms).
+    \end{enumerate}
+    [This $|p|$ will be called the \textbf{fibration of objects of} $p$.]
+\end{exo}
+
+\begin{answer}
+    \begin{enumerate}[label=(\roman*)]
+        \item This directly follows from the characterization of $f$ being Cartesian if and only if $(-)\circ
+        f$ is an isomorphism between functions over given arrows.
+        \item Let $\xrightarrow f \xrightarrow g$ be a composable pair of Cartesian morphisms in $\bE$.
+        Let's show that $g\circ f$ is Cartesian. We state $f : X \to Y$ and $g : Y \to Z$. Let
+        $h : A \to Z$ and $w : pA \to pX$ such that $ph = pg\circ pf \circ w$, let's show that there exists
+        one and only one $k : A \to X$ such that $h = g \circ f \circ k$. First, using the fact that $g$ is
+        Cartesian on $h$ and $pf\circ w$, there is only one $h' : A \to Y$ such that $ph' = pf \circ w$ and
+        $g\circ h' = h$. Know, using the fact that $f$ is Cartesian with $ph' = pf\circ w$, we find that there
+        exists one and only one $k : A \to X$ such that $pk = w$ and $h' = f\circ k$, so there exists one and
+        only one $k$ such that $g\circ h' = g\circ f \circ k$, \textit{i.e.} such that $h = g\circ g \circ k$.
+        So $g\circ f$ is Cartesian.
+        \begin{center}
+            \begin{tikzcd}
+                \bE\ar[dddd,"p"] & & A\ar[dr,dashed,"k"] \ar[drr,"h'" near end, dashed, bend left = 10]
+                \ar[drrr,"h",bend left=15] & & &\\
+                & & & X\ar[r,"f"] & Y\ar[r,"g"] & Z \\
+                \\
+                & & pA\ar[dr,"w"] \ar[drrr,"ph", bend left=15]\\
+                \bB & & & pX\ar[r,"pf"] & pY\ar[r,"pg"] & pZ
+            \end{tikzcd}
+        \end{center}
+        \item Suppose that $g$ and $g\circ f$ are Cartesian, let's prove that $f$ is Cartesian. Suppose that
+        $f : X \to Y$, $g : Y \to Z$ and that we have $h : A \to Y$ and $w : pA \to pX$ such that
+        $ph = pf \circ w$, let's prove that there exists a unique $k : X \to A$ such that $pk = w$ and
+        $h = f\circ k$. First, as $g$ is Cartesian, $h$ is the only arrow above $ph$ such that $g\circ h =
+        g\circ h$. Thus the condition on $k$ is equivalent to the condition that $g\circ f\circ k = g\circ h$
+        and that $k$ is above $w$. But then, we use the fact that $g\circ f$ is Cartesian to deduce that
+        there is only one such $k$. Thus, $f$ is Cartesian.
+        \begin{center}
+            \begin{tikzcd}
+                \bE\ar[dddd,"p"] & & A\ar[dr,dashed,"k"] \ar[drr,"h" near end, bend left = 10]
+                \ar[drrr,"g\circ h", bend left = 15]& & &\\
+                & & & X\ar[r,"f"] & Y\ar[r,"g"] & Z \\
+                \\
+                & & pA\ar[dr,"w"] \ar[drr,"ph" near end, bend left=10]\ar[drrr,"p(g\circ h)", bend left=15]\\
+                \bB & & & pX\ar[r,"pf"] & pY\ar[r,"pg"] & pZ
+            \end{tikzcd}
+        \end{center}
+        \item Let's check that $|p|$ is indeed a fibration. Let $X \in \bE$, $I\in\bB$ and $u : I \to pX$.
+        As $p$ is a fibration, we can find a Cartesian morphism $f : Y \to X$ in $\bE$ such that $pf = u$.
+        By definition, $f \in \Cart(\bE)$, so we just need to check that $f$ is Cartesian inside $\Cart(\bE)$,
+        but this is straightforward. All fibres of $|p|$ being groupoids is due to the fact that they are
+        Cartesian morphisms above $\idd$, which is an isomorphism, and hence are themselves isomorphisms.
+    \end{enumerate}
+\end{answer}
+
+\begin{exo}
+    Verify that the following two results---known as the Pullback Lemmas--- are a consequence of 
+    \ref{1.1.1.4.ii} and \ref{1.1.1.4.iii} from the previous exercise. Consider
+    \begin{center}
+        \begin{tikzcd}
+            \bullet \ar[rr] \ar[dd] & & \bullet \ar[rr]\ar[dd] & & \bullet\ar[dd]\\
+            & (B) & & (A) & \\
+            \bullet \ar[rr] & & \bullet\ar[rr] & & \bullet
+        \end{tikzcd}
+    \end{center}
+    \begin{enumerate}
+        \item If $(A)$ and $(B)$ are pullback squares, then the outer rectangle is also a pullback
+        square.
+        \item If the outer rectangle and $(A)$ are pullback squares, then $(B)$ is a pullback square
+        as well.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Consider a functor $p : \bE \to \bB$. We describe a slightly weaker notion of Cartesianness, than
+    the one above. Call a morphism $f : X \to Y$ in $\bE$ \textbf{weak Cartesian} if for each
+    $g : Z \to Y$ with $pf = pg$  there is a unique vertical $g : Z \to X$ in with $f\circ h = g$.
+    Show that the functor $p$ is a fibration if and only if both
+    \begin{enumerate}[label=(\alph*)]
+        \item every morphism $u : I \to pY$ in $\bB$ has a weak Cartesian lifting $f : X \to Y$;
+        \item the composition of two weak Cartesian morphisms is again weak Cartesian.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Check that the following are (trivial) examples of fibrations
+    $$\fib{\bB\times\bC}{\mathrm{fst}}{\bB}\qquad \fib{\bB}{\idd}{\bB}\qquad \fib{\bB}{}{1 = \{*\}}
+    \qquad \fib{X}{}{I}$$
+    where $X,I$ are sets (\textit{i.e.} discrete categories).
+\end{exo}
+
+\begin{answer}
+    \textbf{First case:} $\fib{\bB\times\bC}{\mathrm{fst}}{\bB}$
+    Let $\langle X,Y\rangle \in\bB\times \bC$, $Z \in\bB$, and $u : Z\to X$. We claim that the Cartesian
+    lifting of $u$ is $\langle u,\idd_Y\rangle : \langle Z,Y\rangle \to \langle X,Y\rangle$. Indeed, if one
+    has $\langle h_1,h_2\rangle : \langle A,B\rangle \to \langle X,Y\rangle$ and $w : A \to Z$ such that
+    $u\circ w = h_1$, then a $\langle k,\ell\rangle : \langle A,B\rangle \to \langle Z,Y\rangle$ such that
+    $\mathrm{fst}(\langle k,\ell\rangle) = w$ means that $k = w$, and having
+    $$\langle u,\idd_Y\rangle \circ \langle k,\ell\rangle = \langle h_1,h_2\rangle$$
+    means, by projection on the second coordinates, that $\ell = h_2$. So the only candidate (and it obviously
+    works) is the arrow $\langle w,h_2\rangle$.
+    \begin{center}
+        \begin{tikzcd}[ampersand replacement=\&]
+            {\bB\times\bC} \&\& {\langle A,B\rangle} \\
+            \&\&\& {\langle Z,Y\rangle} \&\& {\langle X,Y\rangle} \\
+            \\
+            \&\& A \\
+            {\bB} \&\&\& Z \&\& X
+            \arrow["{\mathrm{fst}}", from=1-1, to=5-1]
+            \arrow["{\langle u,\idd_Y\rangle}", from=2-4, to=2-6]
+            \arrow["{\langle h_1,h_2\rangle}"' above, from=1-3, to=2-6, bend left = 15]
+            \arrow["{\langle k,\ell\rangle}", from=1-3, to=2-4]
+            \arrow["k", from=4-3, to=5-4]
+            \arrow["{h_1}"' above, from=4-3, to=5-6, bend left = 15]
+            \arrow["u", from=5-4, to=5-6]
+        \end{tikzcd}
+    \end{center}
+
+    \textbf{Second case:} $\fib{\bB}{\idd}{\bB}$ Let $X \in \bB$, $Y \in \bB$ and $u : Y \to X$. Its Cartesian
+    lifting is itself: if we have a triangle below that commutes, then it can only be lifted to itself as
+    the functor is the identity.
+
+    \textbf{Third case:} $\fib{\bB}{}{\{*\}}$ Let $X \in \bB$, $* \in 1$. The only arrow in $1$ is the
+    identity of the sole object, and we can take as Cartesian lifting of $\idd_*$ the arrow $\idd_X$. The
+    fact that it is Cartesian is because it is an isomorphism.
+
+    \textbf{Fourth case:} $\fib{X}{}{I}$ where $X$ and $I$ are discrete categories. Here too, the only
+    possible arrows are identities, which can be lifted directly be an identity on the above object, which
+    is Cartesian because it is an isomorphism.
+\end{answer}
+
+\begin{exo}
+    For an arbitrary category $\bB$, consider the domain functor $\dom : \bB^\rightarrow \to \bB$.
+    \begin{enumerate}[label=(\roman*)]
+        \item Describe the fibre category above $I\in\bB$. It is usually called the \textbf{opslice
+        category} or simply \textbf{opslice} and written as $I\backslash\bB$.
+        \item Show that $\dom$ is a fibration (without any assumptions about $\bB$).
+        \item Show also that for each $I\in\bB$ the domain functor $\dom_I : \bB/I\to\bB$ is a
+        fibration.
+    \end{enumerate}
+\end{exo}
+
+\begin{answer}
+    \begin{enumerate}[label=(\roman*)]
+        \item The fibre category $I\backslash \bB$ has :
+        \begin{itemize}
+            \item as objects, pairs $\langle X,f\rangle$ where $f : I \to X$.
+            \item as morphisms $\langle X,f\rangle \xrightarrow{h} \langle Y,g\rangle$ an arrow $h : X \to Y$
+            such that the following diagram commutes:
+            \begin{center}
+                \begin{tikzcd}
+                    & I \ar[ddl,"f" left] \ar[ddr,"g"] \\
+                    \\
+                    X\ar[rr,"h"] & & Y
+                \end{tikzcd}
+            \end{center}
+            \item Let $f : X \to Y$ an element of $\bB^\to$, $Z \in \bB$ and $u : Z \to X$. We claim that a
+            Cartesian lifting of $u$ is given by
+            $$\langle u , \idd_Y\rangle : \fib{Z}{f\circ u}{Y}\longrightarrow\fib{X}{f}{Y}$$
+            To show that it is Cartesian, let $\langle h_1,h_2\rangle : \fib{A}{\alpha}{B} \longrightarrow
+            \fib{X}{f}{Y}$ and $\beta : A \to Z$ such that $h_1 = u\circ \beta$. Let's show that the only
+            arrow $\langle t,u\rangle : \fib{A}{\alpha}{B}\longrightarrow\fib{X}{f}{Y}$ above $\beta$ such
+            that $\langle h_1,h_2\rangle = \langle u,\idd_Y\rangle \circ \langle t,u\rangle$ is
+            $\langle \beta,h_2\rangle$. This is direct, as being above $\beta$ means that $t = \beta$, and
+            the other equality amounts to $h_2 = \beta$. Thus this lifting is Cartesian. This shows that
+            $\dom : \bB^\to\to\bB$ is a fibration.
+            \item Let's show that $\dom_I$ is a fibration. Let $\fib{X}{f}{I} \in \bB/I$, $Y\in \bB$ and
+            $u : Y \to X$. A Cartesian lifting is given by
+            $$u : \fib{Y}{f\circ u}{I}\longrightarrow \fib{X}{f}{I}$$
+            and the proof that this lifting is Cartesian is the same as in the previous question.
+        \end{itemize}
+    \end{enumerate}
+\end{answer}
+
+\begin{exo}
+    Assume $\bB$ is a category with pullbacks. Show that the functor $\bB^{\to\to}\to\bB^\to$ sending
+    $\overset{f}{\to}\overset{g}{\to}$ to $\overset{g}{\to}$ is a fibration. Is the composite
+    $\bB^{\to\to}\to\bB^\to\overset{\cod}{\to}\bB$ also a fibration?
+\end{exo}
+
+\begin{exo}
+    Show that the object functor $\Cat\to\Sets$ is a fibration. Also that the forgetful functor
+    $\mathbf{Sp}\to\Sets$ is a fibration --- where $\mathbf{Sp}$ is the category of topological spaces
+    and continuous functions.
+\end{exo}
+
+\begin{exo}
+    Let $\mathbf{Fld}$ be the category of fields and field homomorphisms; $\mathbf{Vect}$ is the
+    category of vector spaces: objects are triples $(K,V,\cdot)$ where $K$ is a field of scalars, $V$
+    is an Abelian group of vectors and $\cdot : K\times V \to V$ is an action of scalar multiplication
+    (which distributes both over scalar and over vector addition). A morphism $(K,V,\cdot)\to
+    (L,W,\cdot)$ in $\mathbf{Vect}$ is a pair $(u,f)$ where $u : K \to L$ is a field homomorphism and
+    $f : V \to W$ a group homomorphism such that $f(a\cdot x) = u(a)\cdot f(x)$ for all $a\in K$ and
+    $x \in V$.\\
+    Check that the obvious forgetful functor $\mathbf{Vect}\to\mathbf{Fld}$ is a fibration. What are
+    the fibres? Which maps are Cartesian?
+\end{exo}
+
+\subsection{Some concrete examples: sets, \texorpdfstring{$\omega$}{omega}-sets and PERs}
+
+\begin{exo}
+    Prove that a morphism $(u,(f_i)_{i\in I})$ in $\Fam(\bC)$ is Cartesian if and only if each $f_i$ is an
+    isomorphism in $\bC$.
+\end{exo}
+
+\begin{exo}
+    Consider a map $f = (f_i : X_i\to Y_i)_{i\in I}$ in the fibre $\Fam(\bC)_I = \bC^I$ over $I\in\Sets$.
+    Prove that $f$ is a mono in this fibre if and only if each $f_i$ is a mono in $\bC$.
+\end{exo}
+
+\begin{exo}
+    For an arbitrary category $\bB$, let $\bB^\to_\bullet$ be the category with \textbf{pointed families}
+    as objects; these are pairs $\langle\left(\fib{X}{\varphi}{I}\right),s\rangle$ where $s$ is a section of
+    $\varphi$ (\textit{i.e.} a map $s : I \to X$ with $\varphi\circ s = \idd$). A morphism $\langle
+    \left(\fib{X}{\varphi}{I}\right),s\rangle \longrightarrow \langle \left(\fib{Y}{\psi}{J}\right),t\rangle$
+    in $\bB^\to_\bullet$ consists of a pair of morphisms $u : I \to J$, $f : X \to Y$ in $\bB$ with $\psi 
+    \circ f = u \circ \varphi$ and also $f \circ s = t \circ u$. Thus morphisms of pointed families preserve
+    the points (\textit{i.e.} sections) of the families. Prove that
+    \begin{enumerate}[label=(\roman*)]
+        \item if the category $\bB$ has pullbacks then the functor $\bB^\to_\bullet \to \bB$ sending
+        $\langle\left(\fib{X}{\varphi}{I}\right),s\rangle$ to the index object $I$ is a fibration.
+        \item for $\bB = \Sets$, there is an equivalence of categories $\Fam(\Sets_\bullet)
+        \overset{\simeq}{\to} \Sets^\to_\bullet$ like in Proposition 1.2.2, where $\Sets_\bullet$ is the
+        category of \textbf{pointed sets}: objects are sets containing a distinguished base point, morphisms
+        are functions preserving such points.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Check that for a PER $R$ one has $R\subseteq |R|^2$.
+\end{exo}
+
+\begin{exo}
+    Let $I$ be a set. A \textbf{partition} of $I$ is a collection $Q\subseteq P(I)$ of subsets of $I$
+    satisfying $(1)$ every set in $Q$ is nonempty $(2)$ if $a,b\in Q$ and $a\cap b \neq \emptyset$, then
+    $a=b$ $(3)$ $\bigcup Q = I$. A \textbf{partial partition} of $I$ is a subset $Q\subset P(I)$ satisfying
+    $(1)$ and $(2)$ but not necessarily $(3)$. Show that
+    \begin{enumerate}[label=(\roman*)]
+        \item there is a bijective correspondence between partitions and equivalence relations and between
+        partial partitions and partial equivalence relations (on $I$).
+        \item there is a bijective correspondence between partial equivalence relations on $I$ and
+        equivalence relations on subsets of $I$.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Notice that for $R\in \PER$, the ``global sections" of ``global elements" homset $\PER(1,R)$ is
+    isomorphic to the quotient $\bN/R$. And also that all homsets in $\PER$ and in $\omgSets$ are
+    countable.
+\end{exo}
+
+\begin{exo}
+    \begin{enumerate}[label=(\roman*)]
+        \item Prove that for each $\omega$-set $(I,E)$ the slice category $\omega$-$\Sets/(I,E)$ is
+        Cartesian closed, \textit{i.e.} that $\omgSets$ is a locally Cartesian closed category (LCCC).
+        \item Show that also $\PER$ is a CCC.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Show that a map $\nabla X \to (\bN/R,\in)$ in $\omgSets$ is constant (where $X$ is a set and $R$ is a
+    PER).
+\end{exo}
+
+\begin{exo}
+    \begin{enumerate}[label=(\roman*)]
+        \item \label{1.2.9.i} Prove that the unit $\eta_{(X,E)}$ of the reflection
+        $\PER\reflective
+        \omgSets$ at $(X,E)\in \omgSets$ is an isomorphism if and only if the existence predicate $E : X \to
+        P\bN$ has disjoint images (\textit{i.e.} satisfies $E(x)\cap E(y) \neq \emptyset \implies x=y$).\\
+        Conclude that $\PER$ is equivalent to the full subcategory of $\omgSets$ on these objects with such
+        disjoints images. These $\omega$-sets are also called \textbf{modest sets} (after D. Scott). In this
+        situation the existence predicate $E : X \to P\bN$ may equivalently be described via a surjection
+        function $U \twoheadrightarrow X$, where $U\subseteq \bN$ (\textit{i.e.} via a subquotient of $\bN$),
+        see \textit{e.g.} [ref].
+        \item In view of \ref{1.2.9.i}, describe the reflector $\mathbf{r} : \omgSets \to \PER$ as `forcing
+        images to be disjoint', by taking a suitable quotient
+        $$(X\to P\bN) \mapsto (X/\!\!\sim\; \to P\bN)$$
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    \begin{enumerate}[label=(\roman*)]
+        \item Let $\Eq(\bN) = \{(n,n)\mid n\in \bN\}\subseteq \bN\times\bN$ be the `diagonal' PER. Show
+        that it is a natural number object (NNO) in $\PER$. Also that the resulting $\omega$-set $N =
+        (\bN,\in)$ with $\in (n) = \{n\}$ is NNO in $\omgSets$.
+        \item Check that the maps $\Eq(\bN)\to \Eq(\bN)$ in $\PER$, \textit{i.e.} the maps $N\to N$ in
+        $\omgSets$, can be identified with the (total) recursive functions $\bN\to\bN$.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Show that the category $\omgSets$ has finite colimits. And conclude, from the reflection
+    $\PER\reflective \omgSets$ that $\PER$ also has finite colimits.
+\end{exo}
+
+\begin{exo}
+    Prove that the reflector $\mathbf{r} : \omgSets\to\PER$ preserves finite products, but does \textit{not}
+    preserve equalisers.\\
+    $[$\textit{Hint.} For a counter example, consider in $\Sets$ on the two element set $2 = \{0,1\}$ the
+    identity and twist maps $\idd,\lnot : 2 \rightrightarrows 2$, with empty set $\emptyset\to 2$ as
+    equaliser. By applying $\nabla : \Sets \to \omgSets$ we get an equaliser diagram in $\omgSets$ (since
+    $\nabla$ is right adjoint). But it is not preserved by the reflector $\mathbf{r}$, since $\mathbf{r}
+    (\nabla 2)$ is terminal, and $\mathbf{r}(\nabla\emptyset)$ is initial.$]$
+\end{exo}
+
+\begin{exo}
+    \begin{enumerate}[label=(\roman*)]
+        \item Prove that $\Fam(-) : \Cat \to \Cat$ is a $(2\shortminus)$functor. (One has to ignore aspects
+        of size here, because categories $\Fam(\bC)$ are not small; for example, $\Fam(\boldsymbol{1})$ is
+        isomorphic to $\Sets$.)
+        \item Show that $\Fam(\bC)$ is the free completion of $\bC$ with respect to set-indexed coproducts.
+        This means that $\Fam(\bC)$ has set-indexed coproducts and that there is a unit $\bC\to\Fam(\bC)$
+        which is universal among functors from $\bC$ to categories $\bD$ with set-indexed coproducts
+        $\coprod_{i\in I} X_i$.
+        \item Prove that a category $\bC$ has arbitrary coproducts if and only if the unit $\bC\to\Fam(\bC)$
+        has a left adjoint.
+    \end{enumerate}
+    $[$The $\Fam(-)$ operation forms a so-called `KZ-doctrine', see [ref].$]$
+\end{exo}
+
+\subsection{Some general examples}
+
+\begin{exo}
+    \begin{enumerate}[label=(\roman*)]
+        \item Show that in the total category $\rs(\bB)$ of a simple fibration $\fibcent{\rs(\bB)}{\;\;}{\bB}$ a morphism $(u,f) : (I,X) \to (J,Y)$ is Cartesian if and only if there i an isomorphism
+        $h : I \times X \overset{\cong}{\to} I \times Y$ in $\bB$ such that $\pi\circ h = \pi$ and
+        $\pi'\circ h = f$.
+        \item Show that the assignment $(I,X)\mapsto I^*(X) = \left(\fibcent{I\times X}{\pi}{I}\right)$
+        extends to a full and faithful functor $\rs(\bB)\to\bB^\to$. Prove that it maps Cartesian morphisms
+        to pullback squares.\\
+        $[$This functor restricts to a full and faithful functor $\bB \dbsl I\to\bB/I$.$]$
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Consider a simple fibration $\fibcent{\rs(\bB)}{\;\;}{\bB}$ for a category $\bB$ with finite products
+    $(1,\times)$. Prove that
+    \begin{enumerate}[label=(\roman*)]
+        \item each fibre $\bB\dbsl I$ has finite products, and $I^* : \bB\to\bB\dbsl I$ preserves these
+        products;
+        \item the following are equivalent:
+        \begin{enumerate}[label=(\alph*)]
+            \item $\bB$ is Cartesian closed;
+            \item each fibre $\bB\dbsl I$ is Cartesian closed;
+            \item each functor $I^* : \bB\to \bB\dbsl I$ has a right adjoint $ I \Rightarrow (-)$.
+        \end{enumerate}
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    In case a category $\bB$ has finite limits (\textit{i.e.} additionally has equalisers with respect to
+    the previous exercise), prove that $\bB$ is Cartesian closed if and only if for each $I \in \bB$, the
+    functor $I^* : \bB\to\bB\dbsl I$ (to the ordinary slice) mapping $X$ to $I^*(X) =
+    \left(\fibcent{I\times X}{\pi}{I}\right)$, has a right adjoint $\prod_I$.\\
+    $[$\textit{Hint.} One obtains a right adjoint $\prod_I$ by mapping the family
+    $\left(\fibcent{X}{\varphi}{I}\right)$ to the domain of the equaliser $e$ in
+    \begin{center}
+        \begin{tikzcd}
+            \prod_I(\varphi)\ar[r,"e",tail] & (I\Rightarrow X) \ar[rr,bend left,"I\Rightarrow \varphi"]
+            \ar[rr,bend right, "\Lambda(\pi)" below] & & (I\Rightarrow I)
+        \end{tikzcd}.
+    \end{center}
+    \vspace{-1.58cm}
+    \begin{flushright}
+        $]$
+    \end{flushright}
+\end{exo}
+
+\vspace{0.5cm}
+
+\begin{exo}
+    Let $\bB$ be a category with finite products and $I$ an object of $\bB$.
+    \begin{enumerate}[label=(\roman*)]
+        \item Show that the functor $I\times (-) : \bB\to\bB$ forms a comonad in $\bB$.
+        \item Show that the simple slice $\bB\dbsl I$ is the Kleisli category of this comonad $I\times(-)$ and
+        that the ordinary slice $B/I$ is its Eilenberg-Moore category.
+    \end{enumerate}
+\end{exo}
+
+\begin{exo}
+    Let $\bB$ have finite limits. Prove that a map of families $\left(\fibcent{X}{\!\!}{I}\right)\to
+    \left(\fibcent{Y}{\!\!}{J}\right)$ is a mono in $\bB^\to$ if and only if both its components $I\to J$ and
+    $X \to Y$ are monos in $\bB$.
+\end{exo}
+
+\begin{exo}
+    A \textbf{regular mono} is a mono that occurs as an equaliser. Write $\mathrm{RegSub}(\bB)$ for the full
+    subcategory $\Sub(\bB)$ consisting of (equivalence classes of) regular monos. Show that the codomain
+    functor $\fibcent{\mathrm{RegSub}(\bB)}{\!\!}{\bB}$ is a fibration.
+\end{exo}
+
+\begin{exo}
+    Let $\bB$ be a category with finite limits.
+    \begin{enumerate}[label=(\roman*)]
+        \item Show that is $\bB$ is a CCC then also $\bB^\to$ is a CCC and $\fib{\bB^\to}{}{\bB}$ is a functor
+        which strictly preserves the CCC-structure.
+        \item Show that the same holds for $\Sub(\bB)$ instead of $\bB^\to$.
+    \end{enumerate}
+    $[$\textit{Hint.} For families $\left(\fibcent{X}{\varphi}{I}\right)$ and
+    $\left(\fibcent{Y}{\psi}{J}\right)$ construct the exponent family $\varphi\Rightarrow \psi$ over the
+    exponent object $I\Rightarrow J$ in $\bB$ as in the following pullback diagram.
+    \begin{center}
+    \begin{tikzcd}[sep=6em]
+        U \ar[dr,phantom, "\usebox\pullbacksq", very near start] \ar[rr] 
+        \ar[d, "\varphi\Rightarrow \psi" left]& & (X\Rightarrow Y)\ar[d,"X\Rightarrow \psi"]\\
+        (I\Rightarrow J) \ar[rr,"\varphi\Rightarrow J"] & {} & (X\Rightarrow J)
+    \end{tikzcd}
+    \end{center}
+    \vspace{-1.1cm}
+    \begin{flushright}
+        $]$
+    \end{flushright}
+\end{exo}
+
+\begin{exo}
+    Give a categorical formulation of anti-symmetry of a relation $R\rightarrowtail I\times I$.
+\end{exo}
+
+\begin{exo}
+    Verify in detail that the following functors are fibrations.
+    $$\fibcentt{\Sub(\bB)}{\bB}\qquad\fibcentt{\Rel(\bB)}{\bB}\qquad \fibcentt{\Per(\bB)}{\bB}
+    \qquad \fibcentt{\ERel(\bB)}{\bB}$$
+\end{exo}
+
+\begin{exo}
+    Define an alternative category of relations $R\rightarrowtail I\times J$ on possibly different objects
+    in a category $\bB$, which is fibred over $\bB\times\bB$.
+\end{exo}
+
+\begin{exo}
+    Let $\fibPEB$ be a fibration. Prove that $p$ is preordered (\textit{i.e.} all its fibre categories are
+    preorders) if and only if above each map $pX\to pY$ in $\bB$ there is at most one arrow $X\to Y$ in $\bE$
+    (\textit{i.e.} if $p$ is faithful). Conclude that in the total category of a preorder fibration, a
+    vertical morphism is monic.
+\end{exo}
+
+\end{document}

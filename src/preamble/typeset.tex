@@ -1,0 +1,74 @@
+% font & input
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage[activate={true,nocompatibility},final,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage{lmodern}
+% \usepackage{mlmodern} % lmodern but less spindly
+
+% Page setup
+\usepackage[a4paper, margin=1.9cm]{geometry}
+
+% TOC
+\usepackage{tocloft}
+\tocloftpagestyle{empty}
+
+\addto\captionsfrench{
+  \renewcommand{\contentsname}%
+    {Plan du cours}%
+}
+
+% spacing in toc
+\setlength{\cftsecnumwidth}{0.6cm}
+\renewcommand{\cftsecpresnum}{}
+\renewcommand{\cftsecaftersnum}{}
+
+
+% No indent on paragraphs
+\usepackage{parskip}
+% force footnotes t appear on bottom of page
+\usepackage[bottom,stable]{footmisc}
+
+% Lists
+%\usepackage{enumitem}
+% bullets instead of dashes
+\AtBeginDocument{\def\labelitemi{$\bullet$}}
+% margin on lists
+%\setlist[itemize]{leftmargin=.5cm}
+%\setlist[enumerate]{leftmargin=.7cm}
+
+% End of chapter
+\NewDocumentCommand\endchapter{}{%
+\vfill
+\[\star \qquad \quad \star \qquad \quad \star \qquad \quad \star\]
+\[\star \qquad \quad \star \qquad \quad \star \qquad \quad \star \qquad \quad \star\]
+\vfill
+}
+
+% Header, footer
+\usepackage{titleps}
+\usepackage{lastpage}
+
+\makeatletter
+\newpagestyle{main}{
+  \setheadrule{1pt}
+  %\ifsolo\else \setfootrule{1pt}\fi
+  \sethead{\@title}{}{Page \thepage}
+  \setfoot{}{}{}%\ifsolo\else\textbf{Chapitre \thechapter} : \textsc{\chaptertitle}\fi}{}{}
+}
+\makeatother
+
+\pagestyle{main}
+
+\SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+\let\oldtextbf=\textbf
+\renewcommand{\textbf}[1]{\ifmmode\mathbf{#1}\else\oldtextbf{#1}\fi}
+
+% Section number typesetting
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{subsubsection}}
+
+% Create clickable links in the output pdf
+\usepackage[hidelinks]{hyperref}

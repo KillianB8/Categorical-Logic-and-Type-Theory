@@ -1,0 +1,97 @@
+\usepackage{etoolbox} % used for AtBeginEnvironment
+\usepackage{amsthm}
+\usepackage{changepage} % adjustwidth
+\usepackage{mdframed}
+\usepackage{needspace}
+
+\usepackage{silence}
+\WarningFilter{mdframed}{correct box splittet fails}
+
+% generator for thm-like environment in a mdframed box inside a minipage (to prevent page break)
+\newif\ifishypconc
+\ishypconcfalse
+\newcounter{secthm}[section]
+
+\makeatletter
+\newcommand{\setlabel}[1]{\edef\@currentlabel{#1}\label}
+\makeatother
+
+\newcommand{\mylbl}{\setlabel{\thesection.\thesecthm}{\thesection.\thesecthm}}
+
+\NewDocumentCommand{\newthm}{mm}{
+    \newenvironment{#1}[1][]
+    {\refstepcounter{secthm}
+    \par\noindent\normalfont\ifstrempty{##1}{\textbf{#2 {\thesection}.\thesecthm}}{\textbf{#2 {\thesection}.\thesecthm} (##1).}\par\nopagebreak\mylbl%
+    \begin{mdframed}[
+        linewidth=1pt,
+        linecolor=black,
+        bottomline=false,topline=false,rightline=false,
+        innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt,
+        innerleftmargin=1em,
+        skipabove=.4\baselineskip
+    ]}
+    {\ifishypconc \end{adjustwidth} \fi\end{mdframed}}
+}
+
+\newcounter{excounter}[subsection]
+\renewcommand{\theexcounter}{\ifnum\value{excounter}=0 \stepcounter{excounter}\fi\arabic{excounter}}
+
+\NewDocumentCommand{\newthmnopar}{mm}{
+    \newenvironment{#1}[1][]
+    {\par\noindent\normalfont\ifstrempty{##1}{\textbf{#2 \thesection.\thesubsection.\theexcounter.}}{\textbf{##1}.}\par\nopagebreak%
+    \stepcounter{excounter}
+    \begin{mdframed}[
+        linewidth=1pt,
+        linecolor=black,
+        bottomline=false,topline=false,rightline=false,
+        innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt,
+        innerleftmargin=1em,
+        skipabove=.4\baselineskip
+    ]}
+    {\ifishypconc \end{adjustwidth} \fi\end{mdframed}}
+}
+
+\theoremstyle{definition}
+\newthm{thm}{Theorem}
+\newthm{thmdef}{Theorem -- Definition}
+\newthm{dfn}{Definition}
+\newthm{defprop}{Definition -- Proposition}
+\newthm{lmm}{Lemma}
+\newthm{rem}{Remark}
+\newthm{res}{Result}
+\newthm{prop}{Proposition}
+\newthm{cor}{Corollary}
+\newthmnopar{exo}{Exercise}
+\newthm{notation}{Notation}
+\newtheorem{ex}{Example}
+\newtheorem{csq}{Consequence}[subsection]
+\newtheorem*{csq*}{Consequence}
+\renewcommand{\thecsq}{\arabic{csq}}
+
+\newcounter{excount}[secthm]
+\renewcommand{\theex}{\protect\stepcounter{excount}\thesection.\thesecthm.\theexcount}
+
+% \AtBeginEnvironment{thmdef}{\Needspace{5\baselineskip}}
+% \AtBeginEnvironment{defprop}{\Needspace{5\baselineskip}}
+
+% circled character generator
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}~}
+
+\newcommand{\hyp}{\circled{H}}
+\newcommand{\conc}{\circled{C}}
+
+% when inside a thm-like env, \Hyp makes sure all the text is shifted to the right.
+\newcommand{\Hyp}{\ishypconctrue\begin{adjustwidth}{3em}{}~\\[.1cm] \hspace*{-3em}\hyp\hspace{1em}}
+% only works when there was previously a \Hyp in the environment
+\newcommand{\Conc}{~\\[.1cm] \hspace*{-3em}\conc\hspace{1em}}
+\newenvironment{concenum}{
+    ~\\[0.1cm]\hspace*{-3em}\begin{tabular}{@{}lp{\textwidth-4em}} \conc & \vspace{-.45cm}
+\begin{enumerate}[leftmargin=.5cm]
+}
+{
+\end{enumerate}
+\end{tabular}
+}
+
+\newenvironment{answer}{\begin{proof}[Answer :]$ $\phantom\qedhere{}\par\nobreak\ignorespaces}{\end{proof}}
